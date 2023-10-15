@@ -1,49 +1,453 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haiklu - A Captivating Word Game</title>
+    <title>Keyboard Letter Detector</title>
     <style>
-        /* Your CSS styles can go here */
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #keyboard {
+            width: 500px;
+            height: 150px;
+            margin: 0 auto;
+            cursor: pointer;
+            display: flex;
+            justify-content: center; /* Center the content horizontally */
+            align-items: center;
+        }
+
+        #letterDisplay {
+            position: right;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+        }
+
+        table {
+            width: 500px;
+            height: 150px;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+            table td {
+                width: 30px;
+                height: 30px;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 20x;
+                border: 1px solid #ccc;
+                background-color: white; /* Set the background color to red */
+                color: black; /* Set the text color to black */
+            }
+
+        #RedBox {
+            display: block;
+            margin: 0px auto;
+            width: 500px;
+            height: 40px;
+            font-size: 24px;
+            background-color: green;
+        }
+
+        #wrongLettersBox {
+            display: block;
+            margin: 0px auto;
+            width: 500px;
+            height: 40px;
+            font-size: 24px;
+            background-color: red;
+        }
+        p {
+            text-align: center;
+            font-size: 15pt; /* Set the font size to 15 points */
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Haiklu</h1>
-        <nav>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#gameplay">Gameplay</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <section id="about">
-        <h2>About Haiklu</h2>
-        <p>
-            Discover the captivating world of <strong>Haiklu</strong>, where poetry meets puzzle in a unique and stimulating gaming experience. In <strong>Haiklu</strong>, you'll immerse yourself in the beauty of haikus, those mesmerizing three-line poems that capture the essence of a moment.
-        </p>
-    </section>
+    <div id="letterDisplay">Clicked Letter: None</div>
+    <div id="clickCoordinates">Click Coordinates: X = 0, Y = 0 TX= TY = </div>
+    <p id="centeredParagraph"></p>
+    <table id="pfill">
+        <tbody>
+            <!-- Create a table with cells containing only '+' -->
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+            <tr>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+                <td>+</td>
+            </tr>
+        </tbody>
+    </table>
+    <img id="keyboard" src="MyKbd.jpg" alt="Keyboard Image">
+    <input type="text" id="RedBox" value="">
+    <input type="text" id="wrongLettersBox" placeholder="Wrong Letters">
+    <!-- Add a button to trigger random cell color change -->
+    <button onclick="changeRandomCellBackgroundColor()">Change Random Cell Color</button>
+    <script>
+        var words = ["APPLE", "BANANA", "CHERRY", "DATE"];
+        var row_start = [2, 2, 6, 1];
+        var column_start = [3, 2, 1, 7];
+        var direction = [2, 1, 1, 2];
+        var words_found = 0; // Declare and initialize the words_found variable
+        fillParagraph("This is the first line.", "This is the second line.", "This is the third line.");
+        placeWordsInTable(words, row_start, column_start, direction);
 
-    <section id="gameplay">
-        <h2>Gameplay</h2>
-        <p>
-            But here's the twist: you won't just admire these poetic gems; you'll interact with them! <strong>Haiklu</strong> challenges you to solve a 4-word crossword puzzle that complements the haiku's theme, adding a layer of creativity and wordplay to the mix. Whether you're a word enthusiast or a poetry lover, <strong>Haiklu</strong> will test your linguistic prowess and ignite your imagination.
-        </p>
-    </section>
+        function fillParagraph(line1, line2, line3) {
+            var paragraph = document.getElementById("centeredParagraph");
+            paragraph.innerHTML = `${line1}<br>${line2}<br>${line3}`;
+        }
 
-    <section id="contact">
-        <h2>Contact Us</h2>
-        <p>
-            Ready to play? Send an email to <a href="mailto:playhaiklu@gmail.com?subject=Register%20to%20Play%20Haiklu">playhaiklu@gmail.com</a> with the subject line "<strong>Register to Play Haiklu</strong>."
-        </p>
-    </section>
+        // Function to change the background color of a specific cell
+        function changeCellBackgroundColor(row, col) {
+            // Get the table element by its ID
+            var table = document.getElementById("pfill");
 
-    <footer>
-        &copy; 2023 Haiklu - All rights reserved.
-    </footer>
+            // Check if the row and column are within valid bounds
+            if (row >= 0 && row < table.rows.length && col >= 0 && col < table.rows[0].cells.length) {
+                // Get the cell at the specified row and column
+                var cell = table.rows[row].cells[col];
+
+                // Generate a random color (e.g., a random hex color)
+                var randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
+
+                // Change the background color of the cell to the random color
+                cell.style.backgroundColor = randomColor;
+            } else {
+                console.log("Invalid row or column");
+            }
+        }
+
+        // Function to change the background color of a random cell
+        function changeRandomCellBackgroundColor() {
+            // Generate random row and column indices
+            var numRows = document.getElementById("pfill").rows.length;
+            var numCols = document.getElementById("pfill").rows[0].cells.length;
+            var randomRow = Math.floor(Math.random() * numRows);
+            var randomCol = Math.floor(Math.random() * numCols);
+
+            // Call the function to change the cell's background color
+            changeCellBackgroundColor(randomRow, randomCol);
+        }
+
+        // Function to update the displayed letter
+        function updateLetterDisplay(letter) {
+            var letterDisplay = document.getElementById("letterDisplay");
+            letterDisplay.textContent = "Clicked Letter: " + letter;
+
+            // Append the letter to the text box
+            var RedBox = document.getElementById("RedBox");
+            RedBox.value += letter;
+        }
+
+        // Add a click event listener to the keyboard image
+        document.getElementById("keyboard").addEventListener("click", function (event) {
+            // This function will be called when the keyboard image is clicked
+
+            // Get the clicked letter based on the mouse click coordinates
+            var clickX = event.clientX;
+            var clickY = event.clientY;
+            var entry = "";
+            var table = document.getElementById("pfill"); // Replace "pfill" with the actual ID of your table
+            var tablePositionTop = table.offsetTop; // Vertical position in pixels
+            var tablePositionLeft = table.offsetLeft; // Horizontal position in pixels
+
+            //clickCoordinates.textContent = "Click Coordinates: X = " + clickX + ", Y = " + clickY + "Top" + tablePositionTop+"Left" + tablePositionLeft;
+
+            // You can implement logic to determine the letter based on click coordinates.
+            // For this example, let's assume the keyboard layout is known.
+
+            // Example keyboard layout where keys are positioned on a grid
+            var keyboardLayout = [
+                ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+                ["A", "S", "D", "F", "G", "H", "J", "K", "L", "#"],
+                ["Z", "X", "C", "V", "B", "N", "M", "+", "+", "+"]
+            ];
+
+
+            // Calculate the row and column based on click coordinates
+            var row = Math.floor((clickY - 425) / 50); // Assuming each row is 50 pixels tall
+            var col = Math.floor((clickX - 520) / 50); // Each key is 50x50 pixels
+
+            // Get the letter from the keyboard layout
+            var clickedLetter = keyboardLayout[row][col];
+            var RedBox = document.getElementById("RedBox");
+            var currentText = RedBox.value;
+            var Entry_to_check = "";
+
+            if (clickedLetter == "#") {
+                // Perform backspace by removing the last character from the text box
+
+                if (currentText.length > 0) {
+                    RedBox.value = currentText.slice(0, -1); // Remove the last character
+                }
+                updateLetterDisplay('');
+            }
+            else {
+                if (clickedLetter == "+") {
+                    Entry_to_check = currentText
+                    clickCoordinates.textContent = "Saved Entry: " + Entry_to_check
+
+                    // perform all checks here
+                    var pfillTable = document.getElementById("pfill"); // Replace with the ID of your table
+                    var letterToHighlight = currentText; // Replace with the letter you want to highlight
+                    if (currentText.length == 1) {
+                        highlightCellsWithLetterAndFillTextBox(pfillTable, letterToHighlight);
+                    }
+                    var words = ["APPLE", "BANANA", "CHERRY", "DATE"];
+
+                    if (currentText.length > 1) {
+                        var result = findWordInList(pfillTable, words, currentText);
+                    }
+
+
+                    //then clear the box
+                    RedBox.value = ""
+                }
+                else {
+                    // Update the display with the clicked letter
+                    updateLetterDisplay(clickedLetter);
+                }
+
+
+            }
+
+
+
+            clickCoordinates.textContent = "Saved Entry: " + currentText
+
+
+
+
+        });
+
+        function highlightCellsWithLetterAndFillTextBox(table, letter) {
+            // Check if the provided table exists
+            if (!table || !table.rows) {
+                console.log("Invalid table element provided.");
+                return;
+            }
+
+            var letterFound = false; // Flag to check if the letter is found in the table
+
+            // Iterate through the rows and cells of the table
+            for (var i = 0; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                for (var j = 0; j < row.cells.length; j++) {
+                    var cell = row.cells[j];
+                    // Check if the cell contains the specified letter
+                    if (cell.textContent.trim() === letter) {
+                        // Change the background color of the cell to green
+                        cell.style.backgroundColor = "green";
+                        letterFound = true;
+                    }
+                }
+            }
+
+            // Fill the wrongLettersBox with the letter if it is not found in the table
+            if (!letterFound) {
+                var wrongLettersBox = document.getElementById("wrongLettersBox");
+                wrongLettersBox.value += letter;
+            }
+        }
+
+
+        // Example usage:
+
+
+
+
+        function placeWordsInTable(words, row_start, column_start, direction) {
+            // Define the words, starting positions, and directions
+
+
+            // Get a reference to the table element
+            var table = document.getElementById("pfill"); // Replace "pfill" with the actual ID of your table
+
+            // Loop through each word
+            for (var i = 0; i < words.length; i++) {
+                var word = words[i];
+                var startRow = row_start[i];
+                var startCol = column_start[i];
+                var dir = direction[i];
+
+                if (dir === 1) {
+                    // Horizontal direction
+                    for (var j = 0; j < word.length; j++) {
+                        // Get the cell at the specified row and column
+                        var cell = table.rows[startRow - 1].cells[startCol - 1 + j];
+
+                        // Set the cell's content to the current letter of the word
+                        cell.textContent = word.charAt(j);
+                    }
+                } else if (dir === 2) {
+                    // Vertical down direction
+                    for (var j = 0; j < word.length; j++) {
+                        // Get the cell at the specified row and column
+                        var cell = table.rows[startRow - 1 + j].cells[startCol - 1];
+
+                        // Set the cell's content to the current letter of the word
+                        cell.textContent = word.charAt(j);
+                    }
+                }
+            }
+        }
+
+
+
+
+        function findWordInList(table, words, word) {
+            // Initialize variables to store the result
+            var found = false;
+            var index = -1;
+
+            // Iterate through the global words array and check if the word matches
+            for (var i = 0; i < words.length; i++) {
+                if (words[i] == word) {
+                    found = true;
+                    index = i;
+                    break; // Exit the loop when a match is found
+                }
+            }
+
+            if (found) {
+                // Change the background color of letters in the table that match any letters in the word to yellow
+                highlightLettersInTable(table, index, word);
+
+                // Increment the words_found variable
+                words_found++;
+            }
+
+            return { found: found, index: index };
+        }
+
+        function highlightLettersInTable(table, index, word) {
+            // Iterate through the rows and cells of the table
+
+
+            var startRow = row_start[index];
+            var startCol = column_start[index];
+            var dir = direction[index];
+
+            if (dir === 1) {
+                // Horizontal direction
+                for (var j = 0; j < word.length; j++) {
+                    // Get the cell at the specified row and column
+                    var cell = table.rows[startRow - 1].cells[startCol - 1 + j];
+
+                    // Set the cell's content to the current letter of the word
+                    cell.style.backgroundColor = "yellow";
+                }
+            } else if (dir === 2) {
+                // Vertical down direction
+                for (var j = 0; j < word.length; j++) {
+                    // Get the cell at the specified row and column
+                    var cell = table.rows[startRow - 1 + j].cells[startCol - 1];
+
+                    // Set the cell's content to the current letter of the word
+                    cell.style.backgroundColor = "yellow";
+                }
+            }
+
+        }
+
+
+
+
+
+    </script>
 </body>
 </html>
-
